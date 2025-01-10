@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class SpawnerScript : MonoBehaviour
 {
     public GameObject fruit;
-    void Update()
+    public void Spawn()
     {
-            Instantiate(fruit,transform.position,Quaternion.identity);
+           Instantiate(fruit);
     }
 }
