@@ -11,7 +11,7 @@ public class SwingMiniGame : MonoBehaviour
     [SerializeField] private GameObject coinGlow; // Visual indicator for the active zone
 
     [Header("Game Settings")]
-    [SerializeField] private float speed = 5f; // Initial rotation speed
+    [SerializeField] private float speed = 20f; // Initial rotation speed
     [SerializeField] private float maxSpeed = 20f; // Maximum rotation speed
     [SerializeField] private float speedIncrement = 2f; // Speed increase after each success
 
@@ -96,7 +96,7 @@ public class SwingMiniGame : MonoBehaviour
     {
         isPlaying = true;
         score = 0;
-        speed = 5f;
+        speed = 20f;
         direction = Random.Range(0, 2) == 0 ? -1 : 1;
         Debug.Log("Game started!");
     }
