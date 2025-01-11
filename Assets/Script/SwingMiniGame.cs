@@ -4,37 +4,41 @@ using UnityEngine;
 
 public class SwingMiniGame : MonoBehaviour
 {
-    private bool play = false;
-    private int direction;
-    private bool inZone = false;
-    private int score = 0;
+    [Header("Game Elements")]
+    [SerializeField] private Transform pivot; // Pivot point of rotation
+    [SerializeField] private Transform line; // Rotating line
+    [SerializeField] private Transform coin; // Rotating target
+    [SerializeField] private GameObject coinGlow; // Visual indicator for the active zone
 
-    [SerializeField] private Transform coin;
-    [SerializeField] private GameObject coinGlow;
-    [SerializeField] private Transform line;
-    [SerializeField] private float speed = 5f; // Default speed
-    [SerializeField] private float maxSpd = 20f;
+    [Header("Game Settings")]
+    [SerializeField] private float speed = 5f; // Initial rotation speed
+    [SerializeField] private float maxSpeed = 20f; // Maximum rotation speed
+    [SerializeField] private float speedIncrement = 2f; // Speed increase after each success
 
-    // Start is called before the first frame update
+    private bool isPlaying = false; // Game state
+    private int direction = 1; // Initial rotation direction
+    private int score = 0; // Player's score
+    private bool inZone = false; // If the line is in the target zone
+
     void Start()
     {
-        if (line == null || coin == null || coinGlow == null)
+        if (line == null || coin == null || coinGlow == null || pivot == null)
         {
-            Debug.LogError("One or more required references are not assigned!");
+            Debug.LogError("Required references are not assigned!");
+            enabled = false;
             return;
         }
 
+        // Initialize rotation direction
         direction = Random.Range(0, 2) == 0 ? -1 : 1;
-        Debug.Log("Game Initialized. Direction: " + direction);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (play)
+        if (isPlaying)
         {
-            // Continuously rotate the line
-            line.Rotate(Vector3.forward * speed * direction * Time.deltaTime);
+            // Rotate the line continuously
+            line.RotateAround(pivot.position, Vector3.forward, speed * direction * Time.deltaTime);
         }
     }
 
@@ -42,9 +46,10 @@ public class SwingMiniGame : MonoBehaviour
     {
         if (collision.CompareTag("Coin"))
         {
-            coinGlow.SetActive(true);
+            // Entering the target zone
             inZone = true;
-            Debug.Log("Coin Entered Zone");
+            coinGlow.SetActive(true);
+            Debug.Log("Entered target zone!");
         }
     }
 
@@ -52,45 +57,53 @@ public class SwingMiniGame : MonoBehaviour
     {
         if (collision.CompareTag("Coin"))
         {
-            coinGlow.SetActive(false);
+            // Leaving the target zone
             inZone = false;
-            Debug.Log("Coin Left Zone");
+            coinGlow.SetActive(false);
+            Debug.Log("Exited target zone!");
         }
     }
 
-    public void Click()
+    public void OnClick()
     {
-        // If the coin is in the zone, process the click
+        if (!isPlaying) return;
+
         if (inZone)
         {
-            direction *= -1; // Reverse direction
-            speed = Mathf.Min(speed + 3, maxSpd); // Increase speed but cap at maxSpd
+            // Successful click
             score++;
-            Debug.Log("Successful Click! Score: " + score + ", Speed: " + speed);
-
-            NewCoin();
-        }
-    }
-
-    public void NewCoin()
-    {
-        // Rotate the coin to a new random position
-        float temp = Random.Range(30, 330);
-        coin.Rotate(Vector3.forward * temp);
-
-        if (coin.childCount > 1)
-        {
-            coin.GetChild(1).Rotate(Vector3.forward * temp * -1);
+            speed = Mathf.Min(speed + speedIncrement, maxSpeed); // Increase speed, cap at maxSpeed
+            direction *= -1; // Reverse direction
+            Debug.Log($"Success! Score: {score}, Speed: {speed}");
+            RepositionCoin();
         }
         else
         {
-            Debug.LogWarning("Coin does not have enough children to rotate.");
+            // Missed click
+            Debug.Log("Missed! Try again.");
         }
     }
 
-    public void Play()
+    private void RepositionCoin()
     {
-        play = true;
-        Debug.Log("Game Started");
+        // Randomize the coin's position
+        float randomAngle = Random.Range(30f, 330f);
+        coin.localRotation = Quaternion.Euler(0, 0, randomAngle);
+        Debug.Log("Coin repositioned!");
+    }
+
+    public void StartGame()
+    {
+        isPlaying = true;
+        score = 0;
+        speed = 5f;
+        direction = Random.Range(0, 2) == 0 ? -1 : 1;
+        Debug.Log("Game started!");
+    }
+
+    public void StopGame()
+    {
+        isPlaying = false;
+        Debug.Log($"Game over! Final Score: {score}");
     }
 }
