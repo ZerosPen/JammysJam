@@ -33,6 +33,7 @@ public class SwingMiniGame : MonoBehaviour
     {
         if (play)
         {
+            // Continuously rotate the line
             line.Rotate(Vector3.forward * speed * direction * Time.deltaTime);
         }
     }
@@ -59,25 +60,21 @@ public class SwingMiniGame : MonoBehaviour
 
     public void Click()
     {
+        // If the coin is in the zone, process the click
         if (inZone)
         {
             direction *= -1; // Reverse direction
             speed = Mathf.Min(speed + 3, maxSpd); // Increase speed but cap at maxSpd
             score++;
-            inZone = false;
-
             Debug.Log("Successful Click! Score: " + score + ", Speed: " + speed);
+
             NewCoin();
-        }
-        else
-        {
-            play = false;
-            Debug.Log("Missed Click! Game Over. Final Score: " + score);
         }
     }
 
     public void NewCoin()
     {
+        // Rotate the coin to a new random position
         float temp = Random.Range(30, 330);
         coin.Rotate(Vector3.forward * temp);
 
