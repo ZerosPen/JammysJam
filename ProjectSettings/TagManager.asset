@@ -7,6 +7,10 @@ TagManager:
   - Apple
   - PineApple
   - Peanut
+  - line
+  - coin
+  - fruit
+  - Knife
   layers:
   - Default
   - TransparentFX
